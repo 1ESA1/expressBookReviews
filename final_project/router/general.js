@@ -28,7 +28,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
             break;
         }
     }
-
+    
     if (bookDetails) {
         res.status(200).json({
             message: "Dettagli del libro trovati",
@@ -44,8 +44,21 @@ public_users.get('/isbn/:isbn',function (req, res) {
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const author = req.params.author; // Ottieni l'autore dai parametri della richiesta
+    const keys = Object.keys(books); // Ottieni tutte le chiavi dell'oggetto 'books'
+    let booksByAuthor = []; // Inizializza un array vuoto per contenere i libri dell'autore
+    
+    keys.forEach(key => {
+        if (books[key].author.toLowerCase() === author.toLowerCase()) {
+            booksByAuthor.push(books[key]); // Aggiungi i libri che corrispondono all'autore
+        }
+    });
+
+    if (booksByAuthor.length > 0) {
+        res.json(booksByAuthor); // Restituisci i libri trovati
+    } else {
+        res.status(404).json({ message: 'Nessun libro trovato per questo autore.' }); // Messaggio di errore
+    }
 });
 
 // Get all books based on title
