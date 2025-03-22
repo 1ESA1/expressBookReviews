@@ -28,12 +28,9 @@ public_users.get('/isbn/:isbn',function (req, res) {
             break;
         }
     }
-    
+
     if (bookDetails) {
-        res.status(200).json({
-            message: "Dettagli del libro trovati",
-            data: bookDetails
-        });
+        res.status(200).json({message: "Dettagli del libro trovati",data: bookDetails});
     } else {
         res.status(404).json({message: 'Nessun libro trovato per questo autore.' }); //Messaggio di errore
     }
@@ -80,8 +77,23 @@ public_users.get('/title/:title',function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
-});
+    const isbn = req.params.isbn; // Get isbn details
+
+    // Search for the book by swiping through the keys of the object books
+    let bookReviews = null;
+    for (const key in books) {
+        if (books[key].isbn === isbn) {
+            bookReviews = books[key].reviews;
+            break;
+        }
+    }
+    
+    if (bookReviews) {
+        res.status(200).json(bookReviews);
+    } else {
+        res.status(404).json({message: 'Nessuna recensione trovata per questo isbn.' }); //Messaggio di errore
+    }
+ });
+ module.exports = public_users;
 
 module.exports.general = public_users;
