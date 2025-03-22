@@ -35,9 +35,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
             data: bookDetails
         });
     } else {
-        res.status(404).json({
-            message: "Libro non trovato per l'ISBN fornito"
-        });
+        res.status(404).json({message: 'Nessun libro trovato per questo autore.' }); //Messaggio di errore
     }
  });
  module.exports = public_users;
@@ -63,8 +61,21 @@ public_users.get('/author/:author',function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const title = req.params.title; // Ottieni titolo dai parametri della richiesta
+    const keys = Object.keys(books); // Ottieni tutte le chiavi dell'oggetto 'books'
+    let booksByTitle = []; // Inizializza un array vuoto per contenere i titoli
+    
+    keys.forEach(key => {
+        if (books[key].title.toLowerCase().includes(title.toLowerCase())) {
+            booksByTitle.push(books[key]);
+        }        
+    });
+
+    if (booksByTitle.length > 0) {
+        res.json(booksByTitle); // Restituisci i libri trovati
+    } else {
+        res.status(404).json({ message: 'Nessun libro trovato per questo titolo.' }); // Messaggio di errore
+    }
 });
 
 //  Get book review
