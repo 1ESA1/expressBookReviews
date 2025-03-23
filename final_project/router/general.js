@@ -4,11 +4,6 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = require('express').Router();
 
-// Function for verify if the user exist
-function doesExist(username) {
-    return users.some(user => user.username === username);
-}
-
 public_users.post("/register", (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
