@@ -59,8 +59,60 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const { review } = req.body;
+
+    // Check if user is authorizate in the session
+    if (!req.session.authorization || !req.session.authorization.accessToken) {
+        return res.status(403).json({ message: "Accesso non autorizzato. Effettua il login." });
+    }
+
+    try {
+        const { username } = jwt.verify(req.session.authorization.accessToken, 'access');
+
+        // Check if review is write
+        if (!review) {
+            return res.status(400).json({ message: "Recensione non fornita." });
+        }
+
+        // Search the book with isbn
+        let book = null;
+        for (let key in books) {
+            if (books[key].isbn === isbn) {
+                book = books[key];
+                break;
+            }
+        }
+        //Check if book is find
+        if (!book) {
+            return res.status(404).json({ message: `Libro con ISBN ${isbn} non trovato.` });
+        }
+
+        // If review not exist
+        if (!book.reviews) {
+            book.reviews = [];
+        }
+
+        // Check if user has posted the review
+        const existingReviewIndex = book.reviews.findIndex(r => r.username === username);
+        if (existingReviewIndex !== -1) {
+            // Update the review
+            book.reviews[existingReviewIndex].review = review;
+            return res.status(200).json({
+                message: `Recensione aggiornata con successo per il libro con ISBN ${isbn}.`,
+                review
+            });
+        } else {
+            // Add new review
+            book.reviews.push({ username, review });
+            return res.status(200).json({
+                message: `Recensione aggiunta con successo per il libro con ISBN ${isbn}.`,
+                review
+            });
+        }
+    } catch (error) {
+        return res.status(401).json({ message: "Token non valido o sessione scaduta." });
+    }
 });
 
 module.exports.authenticated = regd_users;
