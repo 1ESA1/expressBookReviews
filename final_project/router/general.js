@@ -23,68 +23,48 @@ public_users.post("/register", (req,res) => {
     return res.status(404).json({ message: "Unable to register user." });
 });
 
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-    // Send a JSON response containing the users array, formatted with an indentation of 4 spaces for readability
-    res.send(JSON.stringify({ users }, null, 4));
+// Get the book list available in the shop using async/await
+public_users.get('/', async (req, res) => {
+  try {
+      const response = await axios.get('http://localhost:5000/books');
+      res.status(200).json(response.data);
+  } catch (error) {
+      res.status(500).json({ message: "Error fetching the list of books", error: error.message });
+  }
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-    const isbn = req.params.isbn; // Get isbn details
-
-    // Search for the book by swiping through the keys of the object books
-    let bookDetails = null;
-    for (const key in books) {
-        if (books[key].isbn === isbn) {
-            bookDetails = books[key];
-            break;
-        }
+// Get book details based on ISBN using Promise callbacks or async-await with Axios
+public_users.get('/books/isbn/:isbn', async (req, res) => {
+    let isbn = req.params.isbn;
+    try {
+        const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(404).json({ message: "Book not found" });
     }
-
-    if (bookDetails) {
-        res.status(200).json({message: "Dettagli del libro trovati",data: bookDetails});
-    } else {
-        res.status(404).json({message: 'Nessun libro trovato per questo autore.' }); //Messaggio di errore
-    }
- });
+});
+ 
  module.exports = public_users;
   
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-    const author = req.params.author; // Ottieni l'autore dai parametri della richiesta
-    const keys = Object.keys(books); // Ottieni tutte le chiavi dell'oggetto 'books'
-    let booksByAuthor = []; // Inizializza un array vuoto per contenere i libri dell'autore
-    
-    keys.forEach(key => {
-        if (books[key].author.toLowerCase() === author.toLowerCase()) {
-            booksByAuthor.push(books[key]); // Aggiungi i libri che corrispondono all'autore
-        }
-    });
-
-    if (booksByAuthor.length > 0) {
-        res.json(booksByAuthor); // Restituisci i libri trovati
-    } else {
-        res.status(404).json({ message: 'Nessun libro trovato per questo autore.' }); // Messaggio di errore
+//Get book details based on Author using Promise callbacks or async-await with Axios
+public_users.get('/books/author/:author', async (req, res) => {
+    let author = req.params.author;
+    try {
+        const response = await axios.get(`http://localhost:5000/author/${author}`);
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(404).json({ message: "No books found by this author" });
     }
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    const title = req.params.title; // Ottieni titolo dai parametri della richiesta
-    const keys = Object.keys(books); // Ottieni tutte le chiavi dell'oggetto 'books'
-    let booksByTitle = []; // Inizializza un array vuoto per contenere i titoli
-    
-    keys.forEach(key => {
-        if (books[key].title.toLowerCase().includes(title.toLowerCase())) {
-            booksByTitle.push(books[key]);
-        }        
-    });
-
-    if (booksByTitle.length > 0) {
-        res.json(booksByTitle); // Restituisci i libri trovati
-    } else {
-        res.status(404).json({ message: 'Nessun libro trovato per questo titolo.' }); // Messaggio di errore
+//Get book details based on Title using Promise callbacks or async-await with Axios
+public_users.get('/books/title/:title', async (req, res) => {
+    let title = req.params.title;
+    try {
+        const response = await axios.get(`http://localhost:5000/title/${title}`);
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(404).json({ message: "No books found with this title" });
     }
 });
 
